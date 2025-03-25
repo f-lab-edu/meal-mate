@@ -1,0 +1,6 @@
+rootProject.name = 'meal-mate'
+
+include 'social-service'
+include 'chat-service'
+include 'member-service'
+include 'notification-service'
