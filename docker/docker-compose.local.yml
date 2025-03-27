@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mysql:
+    platform: linux/x86_64
+    image: mysql:8.0
+    container_name: mysql-local
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --skip-character-set-client-handshake
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=meal_mate_db
+      - MYSQL_USER=meal_mate_local
+      - MYSQL_PASSWORD=meal_mate_local
+      - MYSQL_ROOT_PASSWORD=root_password
+      - TZ=Asia/Seoul
+    volumes:
+      - mysql_local_data:/var/lib/mysql
+      - ../config/local:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mysql_local_data:

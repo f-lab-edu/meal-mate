@@ -1,0 +1,60 @@
+server:
+  port: 8081
+  shutdown: graceful
+
+service:
+  environment: local
+
+spring:
+  application:
+    name: meal-mate
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: meal_mate_local
+    password: meal_mate_local
+    jdbcUrl: jdbc:mysql://localhost:3306/meal_mate_db?useUnicode=yes&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=utf8&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&sendFractionalSeconds=false
+
+  jackson:
+    time-zone: Asia/Seoul
+    jpa:
+      show-sql: true
+      open-in-view: false
+      hibernate:
+        ddl-auto: none
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.MySQL8Dialect
+          format_sql: true
+          default_batch_fetch_size: 1000
+
+    servlet:
+      multipart:
+        max-file-size: 200MB
+        max-request-size: 200MB
+
+feign:
+  client:app:
+    config:
+      default:
+        loggerLevel: full
+
+app:
+  cors:
+    allowedOrigins: https://localhost:8080, https://localhost:8081, http://localhost:3000
+
+logging:
+  level:
+    org.hibernate:
+      type: debug
+    org.springframework.web.client: trace
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+swagger:
+  ui:
+    path: file:${user.dir}/build/swagger-ui-sample/
