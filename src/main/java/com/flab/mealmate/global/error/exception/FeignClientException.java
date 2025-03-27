@@ -14,7 +14,7 @@ public class FeignClientException extends RuntimeException {
 
     public FeignClientException(int status, String resultMessage) {
         this.status = status;
-        this.errorResponse = ErrorResponse.messageBuilder()
+        this.errorResponse = ErrorResponse.errorMessageBuilder()
             .errorCode(ErrorCode.ERR_FEIGN_CLIENT)
             .errorMessage(resultMessage)
             .build();

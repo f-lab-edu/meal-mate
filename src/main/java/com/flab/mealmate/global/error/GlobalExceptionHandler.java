@@ -3,6 +3,8 @@ package com.flab.mealmate.global.error;
 
 import static com.flab.mealmate.global.error.exception.ErrorCode.*;
 
+import java.util.List;
+
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
@@ -41,7 +43,7 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
 		log.debug(null, e);
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_TYPE_VALUE.getValue();
-		var response = ErrorResponse.messageBuilder()
+		var response = ErrorResponse.errorMessageBuilder()
 				.errorCode(ERR_INVALID_TYPE_VALUE)
 				.errorMessage(errorMessage)
 				.build();
@@ -56,7 +58,7 @@ public class GlobalExceptionHandler {
 		String errorMessage = messageSource.getMessage(e.getMessage(), e.getStringArgList(), LocaleContextHolder.getLocale());
 
 		var errorCode = e.getErrorCode();
-		var response = ErrorResponse.messageBuilder()
+		var response = ErrorResponse.errorMessageBuilder()
 				.errorCode(errorCode)
 				.errorMessage(errorMessage)
 				.build();
@@ -79,7 +81,7 @@ public class GlobalExceptionHandler {
 		log.debug(null, e);
 
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
-		var response = ErrorResponse.messageBuilder()
+		var response = ErrorResponse.errorMessageBuilder()
 			.errorCode(ERR_INVALID_INPUT_VALUE)
 			.errorMessage(errorMessage)
 			.build();
@@ -97,16 +99,13 @@ public class GlobalExceptionHandler {
 		log.debug(null, e);
 
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
-		var response = ErrorResponse.messageBuilder()
-			.errorCode(ERR_INVALID_INPUT_VALUE)
-			.errorMessage(errorMessage)
-			.build();
+		var response = ErrorResponse.of(ERR_INVALID_INPUT_VALUE, errorMessage, e.getBindingResult());
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
 	/**
-	 * @ModelAttribute 으로 binding error 발생시 BindException 발생한다.
+	 * @ModelAttribute 으로 binding error 발생시 BindExceptioㄷn 발생한다.
 	 *                 ref
 	 *                 https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-ann-modelattrib-method-args
 	 */
@@ -114,10 +113,9 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ErrorResponse> handleBindException(BindException e) {
 		log.debug(null, e);
 
-		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
 		var response = ErrorResponse.of(
 			ERR_INVALID_INPUT_VALUE,
-			errorMessage,
+			ERR_INVALID_INPUT_VALUE.getValue(),
 			e.getBindingResult());
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -132,10 +130,12 @@ public class GlobalExceptionHandler {
 		MethodArgumentTypeMismatchException e) {
 		log.debug(null, e);
 
-		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_TYPE_VALUE.getValue();
-		var response = ErrorResponse.messageBuilder()
+		final List<ErrorResponse.FieldError> errors = ErrorResponse.FieldError.of(e.getName(), e.getValue().toString(), e.getErrorCode());
+
+		var response = ErrorResponse.errorMessageBuilder()
 			.errorCode(ERR_INVALID_TYPE_VALUE)
-			.errorMessage(errorMessage)
+			.errorMessage(ERR_INVALID_TYPE_VALUE.getValue())
+			.fieldErrors(errors)
 			.build();
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -149,7 +149,7 @@ public class GlobalExceptionHandler {
 		log.debug(null, e);
 
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
-		var response = ErrorResponse.messageBuilder()
+		var response = ErrorResponse.errorMessageBuilder()
 			.errorCode(ERR_INVALID_INPUT_VALUE)
 			.errorMessage(errorMessage)
 			.build();
@@ -171,7 +171,7 @@ public class GlobalExceptionHandler {
 				businessException.getStringArgList(),
 				LocaleContextHolder.getLocale());
 
-			var response = ErrorResponse.messageBuilder()
+			var response = ErrorResponse.errorMessageBuilder()
 				.errorCode(ERR_INVALID_TYPE_VALUE)
 				.errorMessage(errorMessage)
 				.build();
@@ -179,7 +179,7 @@ public class GlobalExceptionHandler {
 			return new ResponseEntity<>(response, HttpStatus.PRECONDITION_FAILED);
 		}
 
-		var response = ErrorResponse.messageBuilder()
+		var response = ErrorResponse.errorMessageBuilder()
 			.errorCode(ERR_INVALID_TYPE_VALUE)
 			.errorMessage(e.getMessage())
 			.build();
@@ -199,7 +199,7 @@ public class GlobalExceptionHandler {
 			: messageSource.getMessage(ERR_METHOD_NOT_ALLOWED.getValue(), null,
 			LocaleContextHolder.getLocale());
 
-		var response = ErrorResponse.messageBuilder()
+		var response = ErrorResponse.errorMessageBuilder()
 			.errorCode(ERR_METHOD_NOT_ALLOWED)
 			.errorMessage(errorMessage)
 			.build();
@@ -218,7 +218,7 @@ public class GlobalExceptionHandler {
 			: messageSource.getMessage(ErrorCode.ERR_INTERNAL_SERVER_ERROR.getValue(), null,
 			LocaleContextHolder.getLocale());
 
-		var response = ErrorResponse.messageBuilder()
+		var response = ErrorResponse.errorMessageBuilder()
 			.errorCode(ERR_INTERNAL_SERVER_ERROR)
 			.errorMessage(errorMessage)
 			.build();
@@ -234,7 +234,7 @@ public class GlobalExceptionHandler {
 		log.error(null, e);
 
 		String message = messageSource.getMessage(ERR_DB.getValue(), null, LocaleContextHolder.getLocale());
-		var response = ErrorResponse.messageBuilder()
+		var response = ErrorResponse.errorMessageBuilder()
 			.errorCode(ERR_DB)
 			.errorMessage(message)
 			.build();

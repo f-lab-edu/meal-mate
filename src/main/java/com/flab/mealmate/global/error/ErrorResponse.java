@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.validation.BindingResult;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -26,13 +25,7 @@ public class ErrorResponse {
 	private String errorMessage;
 	private List<FieldError> fieldErrors = new ArrayList<>();
 
-	@Builder(builderMethodName = "messageBuilder")
-	public ErrorResponse(ErrorCode errorCode, String errorMessage) {
-		this.errorCode = errorCode;
-		this.errorMessage = errorMessage;
-	}
-
-	@Builder(builderMethodName = "fieldErrorsBuilder")
+	@Builder(builderMethodName = "errorMessageBuilder")
 	public ErrorResponse(ErrorCode errorCode, String errorMessage, List<FieldError> fieldErrors) {
 		this.errorCode = errorCode;
 		this.errorMessage = errorMessage;
@@ -40,20 +33,13 @@ public class ErrorResponse {
 	}
 
 	public static ErrorResponse of(ErrorCode errorCode, String errorMessage, BindingResult bindingResult) {
-		return ErrorResponse.fieldErrorsBuilder()
+		return ErrorResponse.errorMessageBuilder()
+			.errorCode(errorCode)
 			.errorMessage(errorMessage)
 			.fieldErrors(FieldError.of(bindingResult))
 			.build();
 	}
 
-	public static ErrorResponse of(String resultMessage, MethodArgumentTypeMismatchException e) {
-		final String value = e.getValue() == null ? resultMessage : e.getValue().toString();
-		final List<FieldError> errors = FieldError.of(e.getName(), value, e.getErrorCode());
-		return ErrorResponse.fieldErrorsBuilder()
-			.errorMessage(resultMessage)
-			.fieldErrors(errors)
-			.build();
-	}
 	@Getter
 	public static class FieldError {
 		private String field;
