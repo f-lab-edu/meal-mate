@@ -29,4 +29,7 @@ app:
   cors:
     allowedOrigins: http://localhost:3000
 
+swagger:
+  ui:
+    path: file:${user.dir}/build/swagger-ui-test/
 

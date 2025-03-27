@@ -54,3 +54,7 @@ management:
     web:
       exposure:
         include: health
+
+swagger:
+  ui:
+    path: file:${user.dir}/build/swagger-ui-sample/

@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.4'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.epages.restdocs-api-spec' version '0.18.2'
+    id 'org.hidetake.swagger.generator' version '2.19.2'
 }
 
 group = 'com.flab'
@@ -27,6 +29,26 @@ dependencyManagement {
     }
 }
 
+swaggerSources {
+    sample {
+        inputFile = file("${buildDir}/api-spec/openapi3.yaml")
+        ui {
+            outputDir = file("${buildDir}/swagger-ui-sample")
+        }
+    }
+}
+
+openapi3 {
+    servers = [
+            { url = "http://localhost:8081" }
+    ]
+    title = "Meal-Mate API"
+    description = "Meal-Mate 서비스 API 문서"
+    version = "0.1.0"
+    format = "yaml"
+    outputDirectory = file("${buildDir}/api-spec")
+}
+
 dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter'
@@ -50,11 +72,15 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    swaggerUI 'org.webjars:swagger-ui:4.15.5'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.h2database:h2'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.18.2'
 
     // Testcontainers
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
@@ -64,4 +90,28 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy("openapi3") // 테스트 후 openapi.yaml 생성
 }
+
+tasks.named("generateSwaggerUISample") {
+    dependsOn("openapi3") // openapi3.yaml 생성 이후에 실행
+}
+
+tasks.register("generateSwagger") {
+    dependsOn("test")
+    dependsOn("openapi3")
+    dependsOn("generateSwaggerUISample")
+}
+
+tasks.named("build") {
+    dependsOn("generateSwagger")
+}
+
+bootJar {
+    dependsOn("generateSwagger")
+    from("${buildDir}/swagger-ui-sample") {
+        into("static/docs") // JAR 내부 포함
+    }
+}
+
+
