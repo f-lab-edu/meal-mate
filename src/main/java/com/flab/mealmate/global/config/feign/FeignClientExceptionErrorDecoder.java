@@ -17,7 +17,7 @@ public class FeignClientExceptionErrorDecoder implements ErrorDecoder {
         String message = "Null Response Body.";
         if (response.body() != null) {
             ErrorResponse errorResponse = JsonUtils.readErrorResponse(response.body().toString());
-            return new FeignClientException(errorResponse.getErrorData());
+            return new FeignClientException(errorResponse);
         }
         return new FeignClientException(response.status(), message);
     }

@@ -1,12 +1,17 @@
 package com.flab.mealmate.global.error;
 
 
+import static com.flab.mealmate.global.error.exception.ErrorCode.*;
+
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindException;
+
+
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,7 +20,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
-import org.springframework.validation.BindException;
 
 import com.flab.mealmate.global.error.exception.BusinessException;
 import com.flab.mealmate.global.error.exception.DataBaseException;
@@ -36,27 +40,26 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(IllegalArgumentException.class)
 	protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
 		log.debug(null, e);
-		var value = ErrorCode.ERR_INVALID_INPUT_VALUE.getValue();
-		var message = e.getMessage();
-		var response = ErrorResponse.of(
-			ErrorResponse.ErrorData.messageBuilder()
-				.errorMessage(message)
-				.build());
+		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_TYPE_VALUE.getValue();
+		var response = ErrorResponse.messageBuilder()
+				.errorCode(ERR_INVALID_TYPE_VALUE)
+				.errorMessage(errorMessage)
+				.build();
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
+
 	@ExceptionHandler(BusinessException.class)
 	protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
 		log.debug(null, e);
-		String errorMessage = messageSource.getMessage(e.getMessage(), e.getStringArgList(),
-			LocaleContextHolder.getLocale());
-		ErrorResponse response = ErrorResponse.of(
-			ErrorResponse.ErrorData.messageBuilder()
-				.errorMessage(StringUtils.hasText(errorMessage) ? errorMessage
-					: messageSource.getMessage(ErrorCode.ERR_BUSINESS.getValue(), null,
-					LocaleContextHolder.getLocale()))
-				.build());
+		String errorMessage = messageSource.getMessage(e.getMessage(), e.getStringArgList(), LocaleContextHolder.getLocale());
+
+		var errorCode = e.getErrorCode();
+		var response = ErrorResponse.messageBuilder()
+				.errorCode(errorCode)
+				.errorMessage(errorMessage)
+				.build();
 
 		return new ResponseEntity<>(response, HttpStatus.PRECONDITION_FAILED);
 	}
@@ -65,11 +68,7 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ErrorResponse> handleFeignClientException(FeignClientException e) {
 		log.error(null, e);
 
-		final ErrorResponse.ErrorData errorData = ErrorResponse.ErrorData.messageBuilder()
-			.errorMessage(e.getMessage())
-			.build();
-
-		final ErrorResponse response = ErrorResponse.of(errorData);
+		var response = e.getErrorResponse();
 
 		return new ResponseEntity<>(response, HttpStatus.PRECONDITION_FAILED);
 	}
@@ -78,10 +77,13 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
 		final MissingServletRequestParameterException e) {
 		log.debug(null, e);
-		final ErrorResponse.ErrorData errorData = ErrorResponse.ErrorData.messageBuilder()
-			.errorMessage(e.getMessage())
+
+		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
+		var response = ErrorResponse.messageBuilder()
+			.errorCode(ERR_INVALID_INPUT_VALUE)
+			.errorMessage(errorMessage)
 			.build();
-		final ErrorResponse response = ErrorResponse.of(errorData);
+
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -93,9 +95,13 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 		log.debug(null, e);
-		final ErrorResponse response = ErrorResponse.of(
-			ErrorCode.ERR_INVALID_INPUT_VALUE.getValue(),
-			e.getBindingResult());
+
+		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
+		var response = ErrorResponse.messageBuilder()
+			.errorCode(ERR_INVALID_INPUT_VALUE)
+			.errorMessage(errorMessage)
+			.build();
+
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -107,9 +113,13 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(BindException.class)
 	protected ResponseEntity<ErrorResponse> handleBindException(BindException e) {
 		log.debug(null, e);
-		final ErrorResponse response = ErrorResponse.of(
-			ErrorCode.ERR_INVALID_INPUT_VALUE.getValue(),
+
+		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
+		var response = ErrorResponse.of(
+			ERR_INVALID_INPUT_VALUE,
+			errorMessage,
 			e.getBindingResult());
+
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -121,9 +131,13 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
 		MethodArgumentTypeMismatchException e) {
 		log.debug(null, e);
-		final ErrorResponse response = ErrorResponse.of(
-			ErrorCode.ERR_INVALID_TYPE_VALUE.getValue(),
-			e);
+
+		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_TYPE_VALUE.getValue();
+		var response = ErrorResponse.messageBuilder()
+			.errorCode(ERR_INVALID_TYPE_VALUE)
+			.errorMessage(errorMessage)
+			.build();
+
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -133,10 +147,13 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler({MissingServletRequestPartException.class, HttpMediaTypeNotSupportedException.class})
 	protected ResponseEntity<ErrorResponse> handleServletException(ServletException e) {
 		log.debug(null, e);
-		final ErrorResponse.ErrorData errorData = ErrorResponse.ErrorData.messageBuilder()
-			.errorMessage(e.getMessage())
+
+		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
+		var response = ErrorResponse.messageBuilder()
+			.errorCode(ERR_INVALID_INPUT_VALUE)
+			.errorMessage(errorMessage)
 			.build();
-		final ErrorResponse response = ErrorResponse.of(errorData);
+
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -154,19 +171,19 @@ public class GlobalExceptionHandler {
 				businessException.getStringArgList(),
 				LocaleContextHolder.getLocale());
 
-			ErrorResponse response = ErrorResponse.of(
-				ErrorResponse.ErrorData.messageBuilder()
-					.errorMessage(StringUtils.hasText(errorMessage) ? errorMessage
-						: messageSource.getMessage(ErrorCode.ERR_BUSINESS.getValue(), null,
-						LocaleContextHolder.getLocale()))
-					.build());
+			var response = ErrorResponse.messageBuilder()
+				.errorCode(ERR_INVALID_TYPE_VALUE)
+				.errorMessage(errorMessage)
+				.build();
+
 			return new ResponseEntity<>(response, HttpStatus.PRECONDITION_FAILED);
 		}
-		final ErrorResponse.ErrorData errorData = ErrorResponse.ErrorData.messageBuilder()
+
+		var response = ErrorResponse.messageBuilder()
+			.errorCode(ERR_INVALID_TYPE_VALUE)
 			.errorMessage(e.getMessage())
 			.build();
 
-		final ErrorResponse response = ErrorResponse.of(errorData);
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -178,12 +195,15 @@ public class GlobalExceptionHandler {
 		HttpRequestMethodNotSupportedException e) {
 		log.debug(null, e);
 
-		ErrorResponse.ErrorData errorData = ErrorResponse.ErrorData.messageBuilder()
-			.errorMessage(StringUtils.hasText(e.getMessage()) ? e.getMessage()
-				: messageSource.getMessage(ErrorCode.ERR_METHOD_NOT_ALLOWED.getValue(), null,
-				LocaleContextHolder.getLocale()))
+		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage()
+			: messageSource.getMessage(ERR_METHOD_NOT_ALLOWED.getValue(), null,
+			LocaleContextHolder.getLocale());
+
+		var response = ErrorResponse.messageBuilder()
+			.errorCode(ERR_METHOD_NOT_ALLOWED)
+			.errorMessage(errorMessage)
 			.build();
-		final ErrorResponse response = ErrorResponse.of(errorData);
+
 		return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
 	}
 
@@ -194,12 +214,15 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ErrorResponse> handleException(Exception e) {
 		log.error(null, e);
 
-		ErrorResponse.ErrorData errorData = ErrorResponse.ErrorData.messageBuilder()
-			.errorMessage(StringUtils.hasText(e.getMessage()) ? e.getMessage()
-				: messageSource.getMessage(ErrorCode.ERR_INTERNAL_SERVER_ERROR.getValue(), null,
-				LocaleContextHolder.getLocale()))
+		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage()
+			: messageSource.getMessage(ErrorCode.ERR_INTERNAL_SERVER_ERROR.getValue(), null,
+			LocaleContextHolder.getLocale());
+
+		var response = ErrorResponse.messageBuilder()
+			.errorCode(ERR_INTERNAL_SERVER_ERROR)
+			.errorMessage(errorMessage)
 			.build();
-		final ErrorResponse response = ErrorResponse.of(errorData);
+
 		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
@@ -210,12 +233,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleDataBaseException(final DataBaseException e) {
 		log.error(null, e);
 
-		String message = messageSource.getMessage(ErrorCode.ERR_DB.getValue(), null, LocaleContextHolder.getLocale());
-		ErrorResponse.ErrorData errorData = ErrorResponse.ErrorData.messageBuilder()
+		String message = messageSource.getMessage(ERR_DB.getValue(), null, LocaleContextHolder.getLocale());
+		var response = ErrorResponse.messageBuilder()
+			.errorCode(ERR_DB)
 			.errorMessage(message)
 			.build();
 
-		final ErrorResponse response = ErrorResponse.of(errorData);
 		return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(response);
 	}
 

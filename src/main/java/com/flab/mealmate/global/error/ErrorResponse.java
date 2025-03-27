@@ -8,8 +8,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.flab.mealmate.global.error.exception.ErrorCode;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,57 +17,43 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"errorCode", "errorMessage", "fieldErrors"})
 public class ErrorResponse {
 
-	private ErrorData errorData;
+	private ErrorCode errorCode;
+	private String errorMessage;
+	private List<FieldError> fieldErrors = new ArrayList<>();
 
-	private ErrorResponse(ErrorData errorData) {
-		this.errorData = errorData;
+	@Builder(builderMethodName = "messageBuilder")
+	public ErrorResponse(ErrorCode errorCode, String errorMessage) {
+		this.errorCode = errorCode;
+		this.errorMessage = errorMessage;
 	}
 
-	public static ErrorResponse of(final ErrorData errorData) {
-		return new ErrorResponse(errorData);
+	@Builder(builderMethodName = "fieldErrorsBuilder")
+	public ErrorResponse(ErrorCode errorCode, String errorMessage, List<FieldError> fieldErrors) {
+		this.errorCode = errorCode;
+		this.errorMessage = errorMessage;
+		this.fieldErrors = fieldErrors;
 	}
-	public static ErrorResponse of(final String errorData, final BindingResult bindingResult) {
-		return new ErrorResponse(ErrorData.fieldErrorsBuilder()
-			.errorMessage(errorData)
+
+	public static ErrorResponse of(ErrorCode errorCode, String errorMessage, BindingResult bindingResult) {
+		return ErrorResponse.fieldErrorsBuilder()
+			.errorMessage(errorMessage)
 			.fieldErrors(FieldError.of(bindingResult))
-			.build());
+			.build();
 	}
 
 	public static ErrorResponse of(String resultMessage, MethodArgumentTypeMismatchException e) {
 		final String value = e.getValue() == null ? resultMessage : e.getValue().toString();
 		final List<FieldError> errors = FieldError.of(e.getName(), value, e.getErrorCode());
-		ErrorData errorData = ErrorData.fieldErrorsBuilder()
+		return ErrorResponse.fieldErrorsBuilder()
+			.errorMessage(resultMessage)
 			.fieldErrors(errors)
 			.build();
-		return new ErrorResponse(errorData);
 	}
-
-
-	@Getter
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	@JsonPropertyOrder({"errorMessage", "fieldErrors"})
-	public static class ErrorData {
-
-		@JsonProperty("errorMessage")
-		private String errorMessage;
-
-		private List<FieldError> fieldErrors;
-
-		@Builder(builderMethodName = "messageBuilder", builderClassName = "MessageBuilderClass")
-		public ErrorData(String errorMessage) {
-			this.errorMessage = errorMessage;
-		}
-
-		@Builder(builderMethodName = "fieldErrorsBuilder", builderClassName = "FieldErrorsBuilderClass")
-		public ErrorData(String errorMessage, List<FieldError> fieldErrors) {
-			this.errorMessage = errorMessage;
-			this.fieldErrors = fieldErrors;
-		}
-	}
-
 	@Getter
 	public static class FieldError {
 		private String field;
