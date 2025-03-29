@@ -24,6 +24,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import com.flab.mealmate.global.error.exception.BusinessException;
+import com.flab.mealmate.global.error.exception.CustomIllegalArgumentException;
 import com.flab.mealmate.global.error.exception.DataBaseException;
 import com.flab.mealmate.global.error.exception.ErrorCode;
 import com.flab.mealmate.global.error.exception.FeignClientException;
@@ -51,6 +52,17 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
+	@ExceptionHandler(CustomIllegalArgumentException.class)
+	protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(CustomIllegalArgumentException e) {
+		log.debug(null, e);
+		var response = ErrorResponse.errorMessageBuilder()
+			.errorCode(e.getErrorCode())
+			.errorMessage(e.getMessage())
+			.build();
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	}
+
 
 	@ExceptionHandler(BusinessException.class)
 	protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
@@ -63,7 +75,7 @@ public class GlobalExceptionHandler {
 				.errorMessage(errorMessage)
 				.build();
 
-		return new ResponseEntity<>(response, HttpStatus.PRECONDITION_FAILED);
+		return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
 	@ExceptionHandler(FeignClientException.class)
