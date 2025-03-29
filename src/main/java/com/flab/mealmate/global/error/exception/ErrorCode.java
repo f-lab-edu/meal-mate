@@ -13,7 +13,6 @@ public enum ErrorCode {
 	// 모임
 	ERR_MEETUP_001("ERR_MEETUP_001"),
 	ERR_MEETUP_002("ERR_MEETUP_002"),
-	ERR_MEETUP_003("ERR_MEETUP_003")
 	;
 
 
