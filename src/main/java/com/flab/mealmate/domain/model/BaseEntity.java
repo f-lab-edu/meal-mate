@@ -19,15 +19,15 @@ public abstract class BaseEntity extends BaseTimeEntity {
 
 	@CreatedBy
 	@AttributeOverrides({
-		@AttributeOverride(name = "userId", column = @Column(name = "created_id", updatable = false)),
-		@AttributeOverride(name = "userName", column = @Column(name = "created_name", updatable = false))
+		@AttributeOverride(name = "userId", column = @Column(name = "creator_id", updatable = false)),
+		@AttributeOverride(name = "userName", column = @Column(name = "creator_name", updatable = false))
 	})
 	private User createdBy;
 
 	@LastModifiedBy
 	@AttributeOverrides({
-		@AttributeOverride(name = "userId", column = @Column(name = "modified_id")),
-		@AttributeOverride(name = "userName", column = @Column(name = "modified_name"))
+		@AttributeOverride(name = "userId", column = @Column(name = "modifier_id")),
+		@AttributeOverride(name = "userName", column = @Column(name = "modify_name"))
 	})
 	private User modifiedBy;
 
