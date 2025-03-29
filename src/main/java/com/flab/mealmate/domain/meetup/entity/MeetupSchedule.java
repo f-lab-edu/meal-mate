@@ -8,6 +8,7 @@ import com.flab.mealmate.domain.meetup.policy.MeetupTimePolicy;
 import com.flab.mealmate.global.error.exception.BusinessException;
 import com.flab.mealmate.global.error.exception.ErrorCode;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,9 +19,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MeetupSchedule {
 
+	@Column(nullable = false)
 	@Comment("시작 시간")
 	private LocalDateTime startDateTime;
 
+	@Column(nullable = false)
 	@Comment("모집 마감 시간")
 	private LocalDateTime recruitmentDeadlineDateTime;
 
