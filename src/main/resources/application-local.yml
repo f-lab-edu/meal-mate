@@ -13,7 +13,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: meal_mate_local
     password: meal_mate_local
-    jdbcUrl: jdbc:mysql://localhost:3306/meal_mate_db?useUnicode=yes&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=utf8&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&sendFractionalSeconds=false
+    jdbc-url: jdbc:mysql://localhost:3306/meal_mate_db?useUnicode=yes&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=utf8&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&sendFractionalSeconds=false
 
   jackson:
     time-zone: Asia/Seoul

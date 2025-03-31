@@ -1,7 +1,16 @@
+server:
+  port: 8081
+
+service:
+  environment: test
+
 spring:
+  application:
+    name: meal-mate
+
   datasource:
+    jdbc-url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;
     driver-class-name: org.h2.Driver
-    jdbcUrl: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MYSQL
     username: sa
     password: ""
 
