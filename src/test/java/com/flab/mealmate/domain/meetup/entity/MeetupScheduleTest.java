@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import com.flab.mealmate.domain.meetup.policy.MeetupTimePolicy;
-import com.flab.mealmate.global.error.exception.CustomIllegalArgumentException;
+import com.flab.mealmate.global.error.exception.BusinessException;
+import com.flab.mealmate.global.error.exception.ErrorCode;
+
 
 class MeetupScheduleTest {
 
@@ -26,9 +28,11 @@ class MeetupScheduleTest {
 		LocalDateTime start = LocalDateTime.of(2026,1,1,12,0);
 		LocalDateTime reference = start.minusHours(policy.minHoursBeforeStart()).plusMinutes(10);
 
-		assertThrows(CustomIllegalArgumentException.class, () -> {
+		BusinessException exception = assertThrows(BusinessException.class, () -> {
 			MeetupSchedule.create(start, reference, policy);
 		});
+
+		assertEquals(ErrorCode.ERR_MEETUP_001, exception.getErrorCode());
 	}
 
 	@Test

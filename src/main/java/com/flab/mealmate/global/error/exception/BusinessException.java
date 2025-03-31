@@ -1,9 +1,6 @@
 package com.flab.mealmate.global.error.exception;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
-import com.flab.mealmate.global.error.exception.ErrorCode;
+import java.text.MessageFormat;
 
 import lombok.Getter;
 
@@ -20,18 +17,18 @@ public class BusinessException extends RuntimeException {
 	}
 
 	public BusinessException(ErrorCode errorCode, String[] stringArgList) {
-		super(getMessages(stringArgList));
+		super(getMessages(errorCode.getValue(), stringArgList));
 		this.stringArgList = stringArgList;
 		this.errorCode = errorCode;
 	}
 
-
-
-	private static String getMessages(String[] stringArgList) {
+	private static String getMessages(String message, String[] stringArgList) {
 		if (stringArgList != null && stringArgList.length > 0) {
-			return Arrays.stream(stringArgList)
-				.collect(Collectors.joining(", "));
+			return MessageFormat.format(message, (Object[]) stringArgList);
 		}
-		return "";
+		return message;
+	}
+	public ErrorCode getErrorCode() {
+		return this.errorCode;
 	}
 }
