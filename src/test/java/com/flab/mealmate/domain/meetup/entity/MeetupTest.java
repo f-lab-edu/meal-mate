@@ -12,7 +12,7 @@ import com.flab.mealmate.global.error.exception.ErrorCode;
 class MeetupTest {
 
 	@Test
-	void 정상적으로_밋업이_생성된다() {
+	void creates_meetup_successfully() {
 		var expectedRecruitmentStatus = RecruitmentStatus.OPEN;
 		var expectedProgressStatus = ProgressStatus.SCHEDULED;
 
@@ -25,7 +25,7 @@ class MeetupTest {
 	}
 
 	@Test
-	void 최소_인원_수가_최대_인원_수보다_클_때_에러() {
+	void hrows_exception_when_min_participants_exceeds_max() {
 		var schedule = new MeetupSchedule();
 		var expected = ErrorCode.ERR_MEETUP_002;
 		BusinessException e = assertThrows(BusinessException.class, () -> {

@@ -12,18 +12,18 @@ class MeetupScheduleTest {
 	private final MeetupTimePolicy policy = new MeetupTimePolicy();
 
 	@Test
-	void 정상적으로_밋업일정이_생성된다() {
+	void creates_meetup_schedule_successfully() {
 		LocalDateTime start = LocalDateTime.of(2026,1,1,12,0);
 		LocalDateTime reference = start.minusHours(policy.minHoursBeforeStart());
 
 		var schedule = MeetupSchedule.create(start, reference, policy);
 
 		assertNotNull(schedule);
-		assertEquals(start, schedule.getStartDateTime());
+		assertEquals(start, schedule.getStartDatetime());
 	}
 
 	@Test
-	void 시작시간이_정책보다_이전이면_에러() {
+	void throws_exception_when_start_time_is_too_early() {
 		LocalDateTime start = LocalDateTime.of(2026,1,1,12,0);
 		LocalDateTime reference = start.minusHours(policy.minHoursBeforeStart()).plusMinutes(10);
 
@@ -35,7 +35,7 @@ class MeetupScheduleTest {
 	}
 
 	@Test
-	void 모집마감시간은_정책기준_계산된다() {
+	void calculates_recruitment_deadline_based_on_policy() {
 		LocalDateTime start = LocalDateTime.of(2026,1,1,12,0);
 		LocalDateTime reference = start.minusHours(policy.minHoursBeforeStart());
 		LocalDateTime deadline = start.minusHours(policy.minHoursBeforeRecruitmentDeadline());
@@ -43,9 +43,9 @@ class MeetupScheduleTest {
 		var schedule = MeetupSchedule.create(start, reference, policy);
 
 		assertNotNull(schedule);
-		assertEquals(start, schedule.getStartDateTime());
+		assertEquals(start, schedule.getStartDatetime());
 
-		assertEquals(deadline, schedule.getRecruitmentDeadlineDateTime()
+		assertEquals(deadline, schedule.getRecruitmentDeadlineDatetime()
 		);
 
 	}
