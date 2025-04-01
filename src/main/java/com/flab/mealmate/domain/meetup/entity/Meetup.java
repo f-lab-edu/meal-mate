@@ -61,6 +61,10 @@ public class Meetup extends BaseEntity {
 	@Comment("최대 인원")
 	private Integer maxParticipants;
 
+	@Column(name = "search_text", insertable = false, updatable = false)
+	@Comment("검색용 필드")
+	private String searchText;
+
 	public Meetup(String title, String content, MeetupSchedule meetupSchedule, ParticipationType participationType,
 		Integer minParticipants, Integer maxParticipants) {
 		this.title = title;

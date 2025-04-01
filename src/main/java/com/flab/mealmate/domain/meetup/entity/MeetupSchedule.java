@@ -21,15 +21,15 @@ public class MeetupSchedule {
 
 	@Column(nullable = false)
 	@Comment("시작 시간")
-	private LocalDateTime startDateTime;
+	private LocalDateTime startDatetime;
 
 	@Column(nullable = false)
 	@Comment("모집 마감 시간")
-	private LocalDateTime recruitmentDeadlineDateTime;
+	private LocalDateTime recruitmentDeadlineDatetime;
 
-	private MeetupSchedule(LocalDateTime startDateTime, LocalDateTime recruitmentDeadlineDateTime) {
-		this.startDateTime = startDateTime;
-		this.recruitmentDeadlineDateTime = recruitmentDeadlineDateTime;
+	private MeetupSchedule(LocalDateTime startDatetime, LocalDateTime recruitmentDeadlineDatetime) {
+		this.startDatetime = startDatetime;
+		this.recruitmentDeadlineDatetime = recruitmentDeadlineDatetime;
 	}
 
 	public static MeetupSchedule create(LocalDateTime startDateTime, LocalDateTime now, MeetupTimePolicy policy) {
@@ -43,7 +43,7 @@ public class MeetupSchedule {
 	}
 
 	private void validateDateTime(LocalDateTime now, int minHoursBeforeStart) {
-		if (this.startDateTime.isBefore(now.plusHours(minHoursBeforeStart))) {
+		if (this.startDatetime.isBefore(now.plusHours(minHoursBeforeStart))) {
 			throw new BusinessException(ErrorCode.ERR_MEETUP_001, new String[]{String.valueOf(minHoursBeforeStart)});
 		}
 	}

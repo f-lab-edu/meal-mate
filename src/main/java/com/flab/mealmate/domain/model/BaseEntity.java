@@ -27,7 +27,7 @@ public abstract class BaseEntity extends BaseTimeEntity {
 	@LastModifiedBy
 	@AttributeOverrides({
 		@AttributeOverride(name = "userId", column = @Column(name = "modifier_id")),
-		@AttributeOverride(name = "userName", column = @Column(name = "modify_name"))
+		@AttributeOverride(name = "userName", column = @Column(name = "modifier_name"))
 	})
 	private User modifiedBy;
 
