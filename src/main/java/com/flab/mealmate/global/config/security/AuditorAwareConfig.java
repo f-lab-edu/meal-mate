@@ -22,7 +22,8 @@ public class AuditorAwareConfig implements AuditorAware<User> {
         // todo : 토큰에서 사용자 정보 가져오기
         Object principal = authentication.getPrincipal();
 
-        return Optional.empty();
+        // 로그인 기능 개발전까지 systemUser 사용
+        return Optional.of(User.createSystemUser());
     }
 }
 

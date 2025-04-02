@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * 트랜잭션 종류에 따른 Datasource 분리를 위한 설정
  */
 @Slf4j
-@Profile({"!local"})
+@Profile({"prd"})
 @Configuration
 public class DataSourceConfig {
 
