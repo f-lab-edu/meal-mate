@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(IllegalArgumentException.class)
 	protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
-		log.debug(null, e);
+		log.debug("Invalid argument encountered: {}", e.getMessage(), e);
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_TYPE_VALUE.getValue();
 		var response = ErrorResponse.errorMessageBuilder()
 				.errorCode(ERR_INVALID_TYPE_VALUE)
@@ -53,8 +53,8 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(CustomIllegalArgumentException.class)
-	protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(CustomIllegalArgumentException e) {
-		log.debug(null, e);
+	protected ResponseEntity<ErrorResponse> handleCustomIllegalArgumentException(CustomIllegalArgumentException e) {
+		log.debug("Custom illegal argument exception occurred: {}", e.getMessage(), e);
 		var response = ErrorResponse.errorMessageBuilder()
 			.errorCode(e.getErrorCode())
 			.errorMessage(e.getMessage())
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BusinessException.class)
 	protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
-		log.debug(null, e);
+		log.debug("Business logic exception: {}", e.getMessage(), e);
 		String errorMessage = messageSource.getMessage(e.getMessage(), e.getStringArgList(), LocaleContextHolder.getLocale());
 
 		var errorCode = e.getErrorCode();
@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(FeignClientException.class)
 	protected ResponseEntity<ErrorResponse> handleFeignClientException(FeignClientException e) {
-		log.error(null, e);
+		log.error("Exception during Feign client call: {}", e.getMessage(), e);
 
 		var response = e.getErrorResponse();
 
@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler({MissingServletRequestParameterException.class})
 	public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
 		final MissingServletRequestParameterException e) {
-		log.debug(null, e);
+		log.debug("Missing request parameter: {}", e.getMessage(), e);
 
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
 		var response = ErrorResponse.errorMessageBuilder()
@@ -108,7 +108,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-		log.debug(null, e);
+		log.debug("Validation failed for request body: {}", e.getMessage(), e);
 
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
 		var response = ErrorResponse.of(ERR_INVALID_INPUT_VALUE, errorMessage, e.getBindingResult());
@@ -123,7 +123,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(BindException.class)
 	protected ResponseEntity<ErrorResponse> handleBindException(BindException e) {
-		log.debug(null, e);
+		log.debug("Binding error for model attributes: {}", e.getMessage(), e);
 
 		var response = ErrorResponse.of(
 			ERR_INVALID_INPUT_VALUE,
@@ -140,7 +140,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
 		MethodArgumentTypeMismatchException e) {
-		log.debug(null, e);
+		log.debug("Type mismatch for request parameter: {}", e.getMessage(), e);
 
 		final List<ErrorResponse.FieldError> errors = ErrorResponse.FieldError.of(e.getName(), e.getValue().toString(), e.getErrorCode());
 
@@ -158,7 +158,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler({MissingServletRequestPartException.class, HttpMediaTypeNotSupportedException.class})
 	protected ResponseEntity<ErrorResponse> handleServletException(ServletException e) {
-		log.debug(null, e);
+		log.debug("Multipart request error or unsupported media type: {}", e.getMessage(), e);
 
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage() : ERR_INVALID_INPUT_VALUE.getValue();
 		var response = ErrorResponse.errorMessageBuilder()
@@ -174,7 +174,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-		log.debug(null, e);
+		log.debug("Failed to parse HTTP request body: {}", e.getMessage(), e);
 
 		if (e.getCause().getCause() instanceof BusinessException) {
 			BusinessException businessException = (BusinessException) e.getCause();
@@ -205,7 +205,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
 		HttpRequestMethodNotSupportedException e) {
-		log.debug(null, e);
+		log.debug("Unsupported HTTP method used: {}", e.getMessage(), e);
 
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage()
 			: messageSource.getMessage(ERR_METHOD_NOT_ALLOWED.getValue(), null,
@@ -224,7 +224,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(Exception.class)
 	protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-		log.error(null, e);
+		log.error("Unhandled server error: {}", e.getMessage(), e);
 
 		var errorMessage = StringUtils.hasText(e.getMessage()) ? e.getMessage()
 			: messageSource.getMessage(ErrorCode.ERR_INTERNAL_SERVER_ERROR.getValue(), null,
@@ -243,7 +243,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler({DataBaseException.class})
 	public ResponseEntity<ErrorResponse> handleDataBaseException(final DataBaseException e) {
-		log.error(null, e);
+		log.error("Database operation failed: {}", e.getMessage(), e);
 
 		String message = messageSource.getMessage(ERR_DB.getValue(), null, LocaleContextHolder.getLocale());
 		var response = ErrorResponse.errorMessageBuilder()

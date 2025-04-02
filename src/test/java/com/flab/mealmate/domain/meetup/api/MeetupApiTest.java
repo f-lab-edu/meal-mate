@@ -1,13 +1,15 @@
 package com.flab.mealmate.domain.meetup.api;
 
-import static com.flab.mealmate.global.ApiDocumentation.*;
-import static com.flab.mealmate.global.util.JsonUtils.*;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
-import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static com.flab.mealmate.global.ApiDocumentation.field;
+import static com.flab.mealmate.global.util.JsonUtils.objectMapper;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
+import static org.springframework.restdocs.payload.JsonFieldType.STRING;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +29,6 @@ import com.flab.mealmate.domain.meetup.dto.MeetupCreateRequest;
 import com.flab.mealmate.domain.meetup.dto.MeetupCreateResponse;
 import com.flab.mealmate.domain.meetup.entity.ParticipationType;
 import com.flab.mealmate.global.ApiDocumentation;
-
 
 @WithMockUser
 @AutoConfigureRestDocs

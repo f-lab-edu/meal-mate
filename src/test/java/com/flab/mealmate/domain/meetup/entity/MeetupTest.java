@@ -12,7 +12,7 @@ import com.flab.mealmate.global.error.exception.ErrorCode;
 class MeetupTest {
 
 	@Test
-	void creates_meetup_successfully() {
+	void createsMeetupSuccessfully() {
 		var expectedRecruitmentStatus = RecruitmentStatus.OPEN;
 		var expectedProgressStatus = ProgressStatus.SCHEDULED;
 
@@ -25,7 +25,7 @@ class MeetupTest {
 	}
 
 	@Test
-	void hrows_exception_when_min_participants_exceeds_max() {
+	void throwsExceptionWhenMinParticipantsExceedsMax() {
 		var schedule = new MeetupSchedule();
 		var expected = ErrorCode.ERR_MEETUP_002;
 		BusinessException e = assertThrows(BusinessException.class, () -> {

@@ -1,6 +1,9 @@
 package com.flab.mealmate.domain.meetup.entity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import com.flab.mealmate.domain.meetup.policy.MeetupTimePolicy;
@@ -12,7 +15,7 @@ class MeetupScheduleTest {
 	private final MeetupTimePolicy policy = new MeetupTimePolicy();
 
 	@Test
-	void creates_meetup_schedule_successfully() {
+	void createsMeetupScheduleSuccessfully() {
 		LocalDateTime start = LocalDateTime.of(2026,1,1,12,0);
 		LocalDateTime reference = start.minusHours(policy.minHoursBeforeStart());
 
@@ -23,7 +26,7 @@ class MeetupScheduleTest {
 	}
 
 	@Test
-	void throws_exception_when_start_time_is_too_early() {
+	void throwsExceptionWhenStartTimeIsTooEarly() {
 		LocalDateTime start = LocalDateTime.of(2026,1,1,12,0);
 		LocalDateTime reference = start.minusHours(policy.minHoursBeforeStart()).plusMinutes(10);
 
@@ -35,7 +38,7 @@ class MeetupScheduleTest {
 	}
 
 	@Test
-	void calculates_recruitment_deadline_based_on_policy() {
+	void calculatesRecruitmentDeadlineBasedOnPolicy() {
 		LocalDateTime start = LocalDateTime.of(2026,1,1,12,0);
 		LocalDateTime reference = start.minusHours(policy.minHoursBeforeStart());
 		LocalDateTime deadline = start.minusHours(policy.minHoursBeforeRecruitmentDeadline());
