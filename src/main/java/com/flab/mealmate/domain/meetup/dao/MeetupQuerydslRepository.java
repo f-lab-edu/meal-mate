@@ -45,6 +45,7 @@ public class MeetupQuerydslRepository implements CustomMeetupRepository {
 				searchFullText(criteria.getKeyword())
 			)
 			.orderBy(meetup.id.desc())
+			.groupBy(meetup.id)
 			.limit(criteria.getPageSize())
 			.fetch();
 
