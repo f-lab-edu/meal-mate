@@ -1,0 +1,22 @@
+services:
+  controller:
+    image: ngrinder/controller
+    container_name: controller
+    restart: always
+    ports:
+      - "9000:80"  # 브라우저에서 http://localhost:9000/login
+    volumes:
+      - ./ngrinder-controller:/opt/ngrinder-controller
+    networks:
+      - backend
+
+  agent:
+    image: ngrinder/agent
+    container_name: agent
+    restart: always
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
