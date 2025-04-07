@@ -6,6 +6,10 @@ import static com.flab.mealmate.global.util.JsonUtils.objectMapper;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static com.flab.mealmate.global.util.JsonUtils.objectMapper;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
@@ -38,7 +42,6 @@ import com.flab.mealmate.domain.meetup.dto.MeetupSummary;
 import com.flab.mealmate.domain.meetup.entity.ParticipationType;
 import com.flab.mealmate.domain.meetup.entity.RecruitmentStatus;
 import com.flab.mealmate.global.ApiDocumentation;
-
 
 @WithMockUser
 @AutoConfigureRestDocs
