@@ -38,21 +38,25 @@ public class MeetupParticipant extends BaseEntity {
 	@Comment("참여 신청 시 작성하는 내용")
 	private String applicationMessage;
 
-	private MeetupParticipant(Meetup meetup, ParticipationStatus participationStatus, String applicationMessage) {
+	private MeetupParticipant(Meetup meetup, ParticipationStatus participationStatus) {
 		this.meetup = meetup;
 		this.participationStatus = participationStatus;
+	}
+
+	private void setApplicationMessage(String applicationMessage) {
 		this.applicationMessage = applicationMessage;
 	}
 
-	public static MeetupParticipant createHostParticipant(Meetup meetup) {
-		return new MeetupParticipant(meetup, ParticipationStatus.APPROVED, null);
+	public static MeetupParticipant createParticipant(Meetup meetup, ParticipationStatus status) {
+		return new MeetupParticipant(meetup, status);
 	}
 
-	public static MeetupParticipant createPendingParticipant(Meetup meetup, String applicationMessage) {
-		return new MeetupParticipant(meetup, ParticipationStatus.PENDING, applicationMessage);
+	public static MeetupParticipant createParticipant(Meetup meetup, ParticipationStatus status, String applicationMessage) {
+		var participant = new MeetupParticipant(meetup, status);
+		participant.setApplicationMessage(applicationMessage);
+
+		return participant;
 	}
 
-	public static MeetupParticipant createApprovedParticipant(Meetup meetup) {
-		return new MeetupParticipant(meetup, ParticipationStatus.APPROVED, null);
-	}
+
 }

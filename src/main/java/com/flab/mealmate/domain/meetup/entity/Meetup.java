@@ -1,5 +1,8 @@
 package com.flab.mealmate.domain.meetup.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.Comment;
 
 import com.flab.mealmate.domain.model.BaseEntity;
@@ -7,12 +10,15 @@ import com.flab.mealmate.global.error.exception.BusinessException;
 import com.flab.mealmate.global.error.exception.ErrorCode;
 
 import io.hypersistence.utils.hibernate.id.Tsid;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -65,7 +71,10 @@ public class Meetup extends BaseEntity {
 	@Comment("검색용 필드")
 	private String searchText;
 
-	public Meetup(String title, String content, MeetupSchedule meetupSchedule, ParticipationType participationType,
+	@OneToMany(mappedBy = "meetup", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<MeetupParticipant> participants = new ArrayList<>();
+
+	private Meetup(String title, String content, MeetupSchedule meetupSchedule, ParticipationType participationType,
 		Integer minParticipants, Integer maxParticipants) {
 		this.title = title;
 		this.content = content;
@@ -76,6 +85,16 @@ public class Meetup extends BaseEntity {
 		this.recruitmentStatus = RecruitmentStatus.OPEN;
 		this.progressStatus = ProgressStatus.SCHEDULED;
 		validateParticipants();
+		addHostParticipant();
+	}
+
+	public static Meetup create(String title, String content, MeetupSchedule meetupSchedule, ParticipationType participationType,
+		Integer minParticipants, Integer maxParticipants) {
+		return new Meetup(title, content, meetupSchedule, participationType, minParticipants, maxParticipants);
+	}
+
+	protected void addHostParticipant() {
+		this.participants.add(MeetupParticipant.createParticipant(this, ParticipationStatus.APPROVED));
 	}
 
 	private void validateParticipants() {
