@@ -57,4 +57,4 @@ management:
 
 swagger:
   ui:
-    path: file:${user.dir}/build/swagger-ui-sample/
+    path: classpath:/static/docs/
