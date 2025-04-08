@@ -1,6 +1,5 @@
 package com.flab.mealmate.domain.meetup.application;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,12 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.flab.mealmate.domain.meetup.dao.MeetupParticipantRepository;
 import com.flab.mealmate.domain.meetup.dao.MeetupRepository;
 import com.flab.mealmate.domain.meetup.dto.MeetupCreateRequest;
 import com.flab.mealmate.domain.meetup.dto.MeetupCreateResponse;
 import com.flab.mealmate.domain.meetup.entity.Meetup;
-import com.flab.mealmate.domain.meetup.entity.MeetupParticipant;
 import com.flab.mealmate.domain.meetup.entity.MeetupSchedule;
 import com.flab.mealmate.domain.meetup.entity.ParticipationType;
 import com.flab.mealmate.domain.meetup.mapper.MeetupCreateMapper;
@@ -43,9 +40,6 @@ class MeetupCreateServiceV1Test {
 
 	@Mock
 	private TimeProvider timeProvider;
-
-	@Mock
-	private MeetupParticipantRepository meetupParticipantRepository;
 
 	@InjectMocks
 	private MeetupCreateServiceV1 meetupCreateService;
@@ -70,7 +64,7 @@ class MeetupCreateServiceV1Test {
 	@Test
 	void create() {
 		var schedule = MeetupSchedule.create(request.getStartDateTime(),request.getStartDateTime(), meetupTimePolicy);
-		var meetup = new Meetup("신촌에서 같이 밥먹을 사람", "샤브샤브 먹고싶어요.", schedule, ParticipationType.AUTO, 3, 5);
+		var meetup = Meetup.create("신촌에서 같이 밥먹을 사람", "샤브샤브 먹고싶어요.", schedule, ParticipationType.AUTO, 3, 5);
 		var response = new MeetupCreateResponse("1");
 
 		given(meetupCreateMapper.toEntity(
@@ -88,7 +82,6 @@ class MeetupCreateServiceV1Test {
 
 		verify(meetupCreateMapper, times(1)).toEntity(request, timeProvider.now(), meetupTimePolicy);
 		verify(meetupRepository, times(1)).save(meetup);
-		verify(meetupParticipantRepository, times(1)).save(any(MeetupParticipant.class));
 		verify(meetupCreateMapper, times(1)).toResponse(meetup);
 	}
 

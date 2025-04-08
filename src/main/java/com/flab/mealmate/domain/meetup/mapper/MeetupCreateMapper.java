@@ -18,7 +18,7 @@ public class MeetupCreateMapper {
 
 	public Meetup toEntity(MeetupCreateRequest request, LocalDateTime now, MeetupTimePolicy policy) {
 		var schedule = MeetupSchedule.create(request.getStartDateTime(), now, policy);
-		return new Meetup(
+		return Meetup.create(
 			request.getTitle(),
 			request.getContent(),
 			schedule,
