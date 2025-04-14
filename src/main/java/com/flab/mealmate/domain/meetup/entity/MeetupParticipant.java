@@ -58,5 +58,16 @@ public class MeetupParticipant extends BaseEntity {
 		return participant;
 	}
 
+	public boolean isActiveParticipant(Long userId) {
+		return isSameUser(userId) && isActive();
+	}
+
+	private boolean isSameUser(Long userId) {
+		return this.isCreatedBy(userId);
+	}
+
+	private boolean isActive() {
+		return this.participationStatus.isActive();
+	}
 
 }

@@ -1,5 +1,6 @@
 package com.flab.mealmate.domain.meetup.entity;
 
+
 public enum ParticipationStatus {
 
 	PENDING("대기 중"),
@@ -16,4 +17,9 @@ public enum ParticipationStatus {
 	private String description() {
 		return  this.description;
 	}
+
+	public boolean isActive() {
+		return this == PENDING || this == APPROVED;
+	}
+
 }
