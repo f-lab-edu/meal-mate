@@ -2,6 +2,7 @@ package com.flab.mealmate.global.util.querydsl;
 
 import org.springframework.util.StringUtils;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberTemplate;
@@ -14,7 +15,7 @@ public class FullTextSearchUtils {
 
 	public static Predicate fullTextSearchBuilder(StringPath fullTextColumn, String keyword) {
 		if (!StringUtils.hasText(keyword)) {
-			return null; // 키워드가 없으면 null 반환
+			return new BooleanBuilder();
 		}
 
 		NumberTemplate<Double> score = Expressions.numberTemplate(
