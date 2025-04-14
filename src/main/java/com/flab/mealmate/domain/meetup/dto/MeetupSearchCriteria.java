@@ -14,7 +14,6 @@ public class MeetupSearchCriteria {
 	private final Pageable pageable;
 	private final String keyword;
 	private final Long cursorId;
-	private final ProgressStatus progressStatus = SCHEDULED;
 
 	public MeetupSearchCriteria(Pageable pageable, String keyword, Long cursorId) {
 		this.pageable = pageable;
@@ -24,5 +23,9 @@ public class MeetupSearchCriteria {
 
 	public int getPageSize() {
 		return this.pageable.getPageSize();
+	}
+
+	public ProgressStatus getProgressStatus() {
+		return SCHEDULED;
 	}
 }
