@@ -18,7 +18,7 @@ services:
       - TZ=Asia/Seoul
     volumes:
       - mysql_local_data:/var/lib/mysql
-      - ./config/local:/docker-entrypoint-initdb.d
+      - ./initsql/local:/docker-entrypoint-initdb.d
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
       interval: 5s
@@ -109,7 +109,7 @@ services:
       APM_SERVER_URL: http://apm-server:8200
       APM_SERVICE_NAME: meal-mate
       APM_APP_PACKAGES: com.flab.mealmate
-      DB_URL: jdbc:mysql://localhost:3306/meal_mate_db?useUnicode=yes&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=utf8&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&sendFractionalSeconds=false
+      DB_URL: jdbc:mysql://mysql:3306/meal_mate_db?useUnicode=yes&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=utf8&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&sendFractionalSeconds=false
       DB_USERNAME: meal_mate_local
       DB_PASSWORD: meal_mate_local
     ports:
