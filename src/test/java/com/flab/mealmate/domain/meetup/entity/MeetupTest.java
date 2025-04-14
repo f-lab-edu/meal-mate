@@ -17,11 +17,14 @@ class MeetupTest {
 		var expectedProgressStatus = ProgressStatus.SCHEDULED;
 
 		var schedule = new MeetupSchedule();
-		var meetup = new Meetup("신촌에서 같이 밥먹을 사람",  "샤브샤브 먹고싶어요.", schedule, ParticipationType.AUTO, 3,5);
+		var meetup = Meetup.create("신촌에서 같이 밥먹을 사람",  "샤브샤브 먹고싶어요.", schedule, ParticipationType.AUTO, 3,5);
 
 		assertNotNull(meetup);
 		assertEquals(expectedRecruitmentStatus, meetup.getRecruitmentStatus());
 		assertEquals(expectedProgressStatus, meetup.getProgressStatus());
+
+		assertEquals(1, meetup.getParticipants().size());
+		assertEquals(ParticipationStatus.APPROVED, meetup.getParticipants().get(0).getParticipationStatus());
 	}
 
 	@Test
@@ -29,7 +32,7 @@ class MeetupTest {
 		var schedule = new MeetupSchedule();
 		var expected = ErrorCode.ERR_MEETUP_002;
 		BusinessException e = assertThrows(BusinessException.class, () -> {
-			new Meetup("신촌에서 같이 밥먹을 사람", "샤브샤브 먹고싶어요.", schedule, ParticipationType.AUTO, 5, 3);
+			Meetup.create("신촌에서 같이 밥먹을 사람", "샤브샤브 먹고싶어요.", schedule, ParticipationType.AUTO, 5, 3);
 		});
 
 		assertEquals(expected, e.getErrorCode());
