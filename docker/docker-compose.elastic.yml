@@ -1,0 +1,131 @@
+services:
+  mysql:
+    platform: linux/x86_64
+    image: mysql:8.0
+    container_name: mysql-local
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --skip-character-set-client-handshake
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=meal_mate_db
+      - MYSQL_USER=meal_mate_local
+      - MYSQL_PASSWORD=meal_mate_local
+      - MYSQL_ROOT_PASSWORD=root_password
+      - TZ=Asia/Seoul
+    volumes:
+      - mysql_local_data:/var/lib/mysql
+      - ./config/local:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    container_name: elasticsearch
+    environment:
+      - bootstrap.memory_lock=true  # 메모리 잠금으로 성능 향상
+      - discovery.type=single-node  # 단일 노드 클러스터로 실행
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # Java 힙 메모리 설정
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data  # 볼륨 마운트
+    ports:
+      - "9200:9200"  # 외부에서 Elasticsearch에 접근 가능
+    networks:
+      - backend
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.14.0
+    depends_on:
+      elasticsearch: { condition: service_healthy }  # Elasticsearch가 정상일 때 실행
+    container_name: kibana
+    ports:
+      - "5601:5601"  # Kibana 대시보드 접속 포트
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200  # Kibana가 연결할 Elasticsearch URL
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    networks:
+      - backend
+    healthcheck:
+      interval: 10s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5601/api/status
+
+  proxy_dep:  #  apm-server는 proxy_dep을 통해 간접적으로 elasticsearch와 kibana 상태를 모두 보장
+    image: busybox  # 경량화된 BusyBox 컨테이너
+    depends_on:
+      elasticsearch: { condition: service_healthy }  # Elasticsearch가 healthy할 때까지 대기
+      kibana: { condition: service_healthy }  # Kibana가 healthy할 때까지 대기
+    networks:
+      - backend
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:7.14.0  # Elastic APM Server 이미지
+    depends_on:
+      - proxy_dep  # Elasticsearch와 Kibana가 모두 정상일 때 실행되도록 의존 설정
+    container_name: apm-server
+    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]  # 필요한 리눅스 Capabilities만 허용
+    cap_drop: ["ALL"]  # 보안 강화를 위해 기본 Capabilities 제거
+    ports:
+      - "8200:8200"  # APM Agent에서 연결할 포트
+    networks:
+      - backend  # 모든 서비스와 연결되는 통합 네트워크
+    command: >  # apm-server 실행 시 커맨드라인 옵션으로 설정
+      apm-server -e
+        -E apm-server.rum.enabled=true
+        -E setup.kibana.host=kibana:5601
+        -E setup.template.settings.index.number_of_replicas=0
+        -E apm-server.kibana.enabled=true
+        -E apm-server.kibana.host=kibana:5601
+        -E output.elasticsearch.hosts=["elasticsearch:9200"]
+    healthcheck:  # APM 서버가 정상적으로 실행됐는지 확인
+      interval: 10s
+      retries: 12
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+
+  meal-mate:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        APP_VERSION: latest
+        APM_AGENT_VERSION: 1.45.0
+    environment:
+      APM_SERVER_URL: http://apm-server:8200
+      APM_SERVICE_NAME: meal-mate
+      APM_APP_PACKAGES: com.flab.mealmate
+      DB_URL: jdbc:mysql://localhost:3306/meal_mate_db?useUnicode=yes&useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=utf8&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&sendFractionalSeconds=false
+      DB_USERNAME: meal_mate_local
+      DB_PASSWORD: meal_mate_local
+    ports:
+      - "8081:8081"  # Spring Boot 애플리케이션 포트
+    depends_on:
+      mysql: {condition: service_healthy} # mysql가 healthy할 때까지 대기
+      apm-server: {condition: service_healthy} # apm-server가 healthy할 때까지 대기
+    networks:
+      - backend
+
+volumes:
+  mysql_local_data:  # MySQL 데이터 영속화 볼륨
+  esdata:  # Elasticsearch 데이터 영속화 볼륨
+
+networks:
+  backend:
+    driver: bridge  # 통합 네트워크로 모든 서비스 연결
+
+# elastic search -> kabana -> proxy_dev -> apm-server -> meal-mate

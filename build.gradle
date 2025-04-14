@@ -7,7 +7,12 @@ plugins {
 }
 
 group = 'com.flab'
-version = '0.0.1-SNAPSHOT'
+
+if (project.hasProperty('appVersion')) {
+    project.version = project.appVersion
+} else {
+    project.version = 'latest'
+}
 
 java {
     toolchain {
@@ -107,6 +112,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:mysql'
+
+    // APM
+    implementation 'co.elastic.apm:elastic-apm-agent:1.45.0'
 }
 
 tasks.named('test') {
