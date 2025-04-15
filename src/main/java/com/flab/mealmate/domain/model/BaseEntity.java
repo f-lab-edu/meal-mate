@@ -31,7 +31,7 @@ public abstract class BaseEntity extends BaseTimeEntity {
 	})
 	private User modifiedBy;
 
-	public boolean isCreatedIdEqualTo(Long createdId) {
+	public boolean isCreatedBy(Long createdId) {
 		return this.createdBy.equalsUserId(createdId);
 	}
 

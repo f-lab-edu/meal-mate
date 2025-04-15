@@ -93,6 +93,15 @@ public class Meetup extends BaseEntity {
 		return new Meetup(title, content, meetupSchedule, participationType, minParticipants, maxParticipants);
 	}
 
+	public void addAutoApprovedParticipant(Long userId) {
+		validateDuplicateParticipant(userId);
+		this.participants.add(MeetupParticipant.createParticipant(this, ParticipationStatus.APPROVED));
+	}
+	public void addPendingParticipant(String applicationMessage, Long userId) {
+		validateDuplicateParticipant(userId);
+		this.participants.add(MeetupParticipant.createParticipant(this, ParticipationStatus.PENDING, applicationMessage));
+	}
+
 	protected void addHostParticipant() {
 		this.participants.add(MeetupParticipant.createParticipant(this, ParticipationStatus.APPROVED));
 	}
@@ -102,4 +111,14 @@ public class Meetup extends BaseEntity {
 			throw new BusinessException(ErrorCode.ERR_MEETUP_002);
 		}
 	}
+
+	protected void validateDuplicateParticipant(Long userId) {
+		boolean hasActive = this.participants.stream()
+			.anyMatch(p -> p.isActiveParticipant(userId));
+
+		if (hasActive) {
+			throw new BusinessException(ErrorCode.ERR_MEETUP_PARTICIPANT_001);
+		}
+	}
+
 }
