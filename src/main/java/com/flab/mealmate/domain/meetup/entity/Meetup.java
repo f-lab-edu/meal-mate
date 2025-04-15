@@ -95,6 +95,7 @@ public class Meetup extends BaseEntity {
 
 	public void addAutoApprovedParticipant(Long userId) {
 		validateDuplicateParticipant(userId);
+		validateMaxParticipantsNotExceeded();
 		this.participants.add(MeetupParticipant.createParticipant(this, ParticipationStatus.APPROVED));
 	}
 	public void addPendingParticipant(String applicationMessage, Long userId) {
@@ -119,6 +120,19 @@ public class Meetup extends BaseEntity {
 		if (hasActive) {
 			throw new BusinessException(ErrorCode.ERR_MEETUP_PARTICIPANT_001);
 		}
+	}
+	protected void validateMaxParticipantsNotExceeded() {
+		if (isOverMaxParticipants()) {
+			throw new BusinessException(ErrorCode.ERR_MEETUP_PARTICIPANT_002);
+		}
+	}
+
+	private boolean isOverMaxParticipants() {
+		long approvedCount = this.participants.stream()
+			.filter(MeetupParticipant::isApproved)
+			.count();
+
+		return approvedCount >= this.maxParticipants;
 	}
 
 }
