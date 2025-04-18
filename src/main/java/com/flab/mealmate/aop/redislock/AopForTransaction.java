@@ -1,4 +1,4 @@
-package com.flab.mealmate.aop;
+package com.flab.mealmate.aop.redislock;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.stereotype.Component;

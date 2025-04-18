@@ -1,4 +1,4 @@
-package com.flab.mealmate.aop;
+package com.flab.mealmate.aop.redislock;
 
 import java.util.ArrayList;
 import java.util.List;

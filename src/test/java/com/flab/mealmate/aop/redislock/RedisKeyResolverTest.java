@@ -1,4 +1,4 @@
-package com.flab.mealmate.aop;
+package com.flab.mealmate.aop.redislock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
