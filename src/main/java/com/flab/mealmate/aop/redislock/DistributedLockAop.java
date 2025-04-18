@@ -1,4 +1,4 @@
-package com.flab.mealmate.aop;
+package com.flab.mealmate.aop.redislock;
 
 import java.lang.reflect.Method;
 
@@ -26,7 +26,7 @@ public class DistributedLockAop {
 	private final RedissonClient redissonClient;
 	private final AopForTransaction aopForTransaction;
 
-	@Around("@annotation(com.flab.mealmate.aop.DistributedLock)")
+	@Around("@annotation(com.flab.mealmate.aop.redislock.DistributedLock)")
 	public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable {
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 		Method method = signature.getMethod();
