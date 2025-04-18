@@ -93,6 +93,7 @@ dependencies {
 
     // DB
     runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.45.0'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
