@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+service:
+  environment: mysql-test
+
+spring:
+  application:
+    name: meal-mate
+
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    jdbc-url: jdbc:tc:mysql:8.0:///testdb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: 1234
+
