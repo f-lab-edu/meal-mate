@@ -11,7 +11,7 @@ import org.testcontainers.containers.MySQLContainer;
 
 @SpringJUnitConfig
 @ImportAutoConfiguration(DataSourceAutoConfiguration.class)
-@ActiveProfiles("mysql-test")
+@ActiveProfiles("container-test")
 public abstract class AbstractMySqlTestContainer {
 
 	private static final String MYSQL_IMAGE = "mysql:8.2";
