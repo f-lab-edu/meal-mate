@@ -3,7 +3,6 @@ package com.flab.mealmate.global.config;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -11,7 +10,6 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
 
 @SpringJUnitConfig
-@ContextConfiguration(classes = MySqlTestConfig.class)
 @ImportAutoConfiguration(DataSourceAutoConfiguration.class)
 @ActiveProfiles("mysql-test")
 public abstract class AbstractMySqlTestContainer {
