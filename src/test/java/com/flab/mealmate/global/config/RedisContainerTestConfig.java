@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.flab.mealmate.aop.lock.RedisLockExecutor;
+import com.flab.mealmate.infra.lock.RedisLockExecutor;
 
 @Configuration
 @Profile("container-test")

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.flab.mealmate.aop.lock.MySqlLockExecutor;
+import com.flab.mealmate.infra.lock.MySqlLockExecutor;
 
 @Configuration
 @Profile("container-test")
