@@ -9,11 +9,13 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringJUnitConfig
 @ContextConfiguration(classes = MySqlTestConfig.class)
 @ImportAutoConfiguration(DataSourceAutoConfiguration.class)
-@ActiveProfiles("mysql-test")
+@ActiveProfiles("container-test")
+@Testcontainers
 public abstract class AbstractMySqlTestContainer {
 
 	private static final String MYSQL_IMAGE = "mysql:8.2";
