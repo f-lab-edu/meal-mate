@@ -1,4 +1,4 @@
-package com.flab.mealmate.aop.lock;
+package com.flab.mealmate.infra.lock;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;

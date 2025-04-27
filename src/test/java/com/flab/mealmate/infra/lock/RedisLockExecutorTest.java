@@ -1,4 +1,4 @@
-package com.flab.mealmate.aop.lock;
+package com.flab.mealmate.infra.lock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.flab.mealmate.global.config.AbstractRedisTestContainer;
 import com.flab.mealmate.global.error.exception.BusinessException;
 import com.flab.mealmate.global.error.exception.ErrorCode;
+import com.flab.mealmate.infra.lock.RedisLockExecutor;
 
 public class RedisLockExecutorTest extends AbstractRedisTestContainer {
 

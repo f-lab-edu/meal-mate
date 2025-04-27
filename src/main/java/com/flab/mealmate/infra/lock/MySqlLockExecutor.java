@@ -1,4 +1,4 @@
-package com.flab.mealmate.aop.lock;
+package com.flab.mealmate.infra.lock;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
