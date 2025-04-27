@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("test")
-public class TestRedissonConfig {
+public class RedisMockConfig {
 
 	@Bean
 	public RedissonClient redissonClient() {

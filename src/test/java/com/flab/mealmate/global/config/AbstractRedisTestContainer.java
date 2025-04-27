@@ -1,6 +1,7 @@
 package com.flab.mealmate.global.config;
 
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -10,6 +11,7 @@ import org.testcontainers.utility.DockerImageName;
 
 @SpringJUnitConfig
 @ActiveProfiles("container-test")
+@ContextConfiguration(classes = RedisContainerTestConfig.class)
 @Testcontainers
 public abstract class AbstractRedisTestContainer {
 
