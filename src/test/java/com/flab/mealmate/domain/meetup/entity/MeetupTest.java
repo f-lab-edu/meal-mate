@@ -6,14 +6,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -68,7 +63,7 @@ class MeetupTest {
 
 	@Test
 	void addsAutoApprovedParticipantSuccessfullyWhenNoDuplicate() {
-		Meetup meetup = createValidMeetup(3,5);
+		Meetup meetup = createValidMeetup(3, 5);
 
 		// 첫번째 신청
 		meetup.addAutoApprovedParticipant(ANOTHER_USER_ID);
@@ -84,7 +79,7 @@ class MeetupTest {
 
 	@Test
 	void throwsExceptionWhenAutoParticipantIsDuplicated() {
-		Meetup meetup = createValidMeetup(3,5);
+		Meetup meetup = createValidMeetup(3, 5);
 
 		assertThatThrownBy(() -> meetup.addAutoApprovedParticipant(HOST_ID))
 			.isInstanceOf(BusinessException.class)
@@ -93,7 +88,7 @@ class MeetupTest {
 
 	@Test
 	void addsPendingParticipantSuccessfullyWhenNoDuplicate() {
-		Meetup meetup = createValidMeetup(3,5);
+		Meetup meetup = createValidMeetup(3, 5);
 
 		meetup.addPendingParticipant("참여하고 싶어요!", ANOTHER_USER_ID);
 
@@ -133,45 +128,42 @@ class MeetupTest {
 	}
 
 	@Test
-	@Disabled
 	void exceedsMaxParticipantsWithoutLocking() throws InterruptedException {
-		// given
-		Meetup meetup = createValidMeetup(1, 2); // 최대 2명
-		setCreatedBy(meetup, HOST);
+		var meetup = createValidMeetup(1, 2);
+		int threadCount = 10;
+		CountDownLatch startLatch = new CountDownLatch(1);
+		CountDownLatch doneLatch = new CountDownLatch(threadCount);
+		AtomicInteger exception = new AtomicInteger();
 
-		int threadCount = 2;
-		ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-		CountDownLatch startSignal = new CountDownLatch(1);
-		CountDownLatch doneSignal = new CountDownLatch(threadCount);
-		List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>());
+		for (int i = 0; i < threadCount; i++) {
+			final long userId = 1000L + i;
+			new Thread(() -> {
+				awaitQuietly(startLatch);
+				try {
+					ReflectionTestUtils.setField(meetup, "createdBy", new User(userId, String.valueOf(userId)));
+					meetup.addAutoApprovedParticipant(userId);
+					setCreatedBy(meetup.getParticipants().get(meetup.getParticipants().size() - 1),
+						new User(userId, String.valueOf(userId)));
+				} catch (BusinessException ignored) {
+					exception.getAndIncrement();
+				} finally {
+					doneLatch.countDown();
+				}
+			}).start();
+		}
 
-		submitParticipation(executor, startSignal, doneSignal, exceptions, meetup, 2L, "user2");
-		submitParticipation(executor, startSignal, doneSignal, exceptions, meetup, 3L, "user3");
+		startLatch.countDown(); // 모든 스레드 동시에 시작
+		doneLatch.await();      // 모두 완료될 때까지 대기
 
-		startSignal.countDown(); // 동시에 시작
-		doneSignal.await();      // 두 스레드가 끝날 때까지 대기
-
-		// then
-		assertThat(meetup.getParticipants().size())
-			.as("동시성 제어 미적용 상태에서는 2명을 초과할 가능성 존재")
-			.isGreaterThan(2);
+		assertThat(meetup.getParticipants().size()).isGreaterThan(2);
+		assertThat(exception.get()).isLessThanOrEqualTo(9);
 	}
 
-	private void submitParticipation(ExecutorService executor, CountDownLatch startSignal, CountDownLatch doneSignal,
-		List<Exception> exceptions, Meetup meetup, Long userId, String userName) {
-		executor.submit(() -> {
-			try {
-				startSignal.await();
-				meetup.addAutoApprovedParticipant(userId);
-				setCreatedBy(meetup.getParticipants().get(meetup.getParticipants().size() - 1), new User(userId, userName));
-			} catch (Exception e) {
-				exceptions.add(e);
-			} finally {
-				doneSignal.countDown();
-			}
-		});
+	private void awaitQuietly(CountDownLatch latch) {
+		try {
+			latch.await();
+		} catch (InterruptedException ignored) {
+		}
 	}
-
-
 
 }

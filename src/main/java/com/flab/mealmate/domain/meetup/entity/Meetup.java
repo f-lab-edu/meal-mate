@@ -93,11 +93,12 @@ public class Meetup extends BaseEntity {
 		return new Meetup(title, content, meetupSchedule, participationType, minParticipants, maxParticipants);
 	}
 
-	public void addAutoApprovedParticipant(Long userId) {
+	void addAutoApprovedParticipant(Long userId) {
 		validateDuplicateParticipant(userId);
 		validateMaxParticipantsNotExceeded();
 		this.participants.add(MeetupParticipant.createParticipant(this, ParticipationStatus.APPROVED));
 	}
+
 	public void addPendingParticipant(String applicationMessage, Long userId) {
 		validateDuplicateParticipant(userId);
 		this.participants.add(MeetupParticipant.createParticipant(this, ParticipationStatus.PENDING, applicationMessage));
