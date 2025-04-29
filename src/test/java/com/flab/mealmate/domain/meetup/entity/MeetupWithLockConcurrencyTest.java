@@ -30,7 +30,7 @@ public class MeetupWithLockConcurrencyTest extends AbstractRedisTestContainer {
 	}
 
 	@Test
-	void NotExceedsMaxParticipantsWithLocking() throws InterruptedException {
+	void notExceedsMaxParticipantsWithLocking() throws InterruptedException {
 		int threadCount = 10;
 		CountDownLatch startLatch = new CountDownLatch(1);
 		CountDownLatch doneLatch = new CountDownLatch(threadCount);
