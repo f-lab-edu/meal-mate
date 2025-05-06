@@ -42,7 +42,7 @@ public class MeetupApplyServiceV1 implements MeetupApplyService {
 		ParticipationStrategy strategy = ofNullable(strategyMap.get(meetup.getParticipationType()))
 			.orElseThrow(() -> new CustomIllegalArgumentException(ErrorCode.ERR_MEETUP_PARTICIPANT_003));
 
-		strategy.participate(meetup, request.getMessage(), userId);
+		strategy.participate(meetup, request.safeMessage(), userId);
 
 		return MeetupApplyMapper.toResponse(meetup);
 	}

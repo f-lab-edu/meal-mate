@@ -6,10 +6,6 @@ import static com.flab.mealmate.global.util.JsonUtils.objectMapper;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static com.flab.mealmate.global.util.JsonUtils.objectMapper;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
@@ -32,8 +28,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.epages.restdocs.apispec.SimpleType;
+import com.flab.mealmate.domain.meetup.application.MeetupApplyService;
 import com.flab.mealmate.domain.meetup.application.MeetupCreateService;
 import com.flab.mealmate.domain.meetup.application.MeetupSearchService;
+import com.flab.mealmate.domain.meetup.dto.MeetupApplyRequest;
+import com.flab.mealmate.domain.meetup.dto.MeetupApplyResponse;
 import com.flab.mealmate.domain.meetup.dto.MeetupCreateRequest;
 import com.flab.mealmate.domain.meetup.dto.MeetupCreateResponse;
 import com.flab.mealmate.domain.meetup.dto.MeetupSearchRequest;
@@ -56,6 +55,9 @@ class MeetupApiTest {
 
 	@MockitoBean
 	private MeetupSearchService meetupSearchService;
+
+	@MockitoBean
+	private MeetupApplyService meetupApplyService;
 
 	private final String TAG = "meetup";
 
@@ -141,6 +143,36 @@ class MeetupApiTest {
 				)
 				.build()
 			)
+			.andDo(print());
+	}
+
+	@Test
+	void apply() throws Exception {
+		// given
+		Long meetupId = 1L;
+		var response = new MeetupApplyResponse(String.valueOf(meetupId));
+		given(meetupApplyService.apply(any(Long.class), any(MeetupApplyRequest.class), any(Long.class)))
+			.willReturn(response);
+
+		ResultActions actions = mockMvc.perform(post("/meetups/{meetupId}/applications", meetupId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"message\":\"참여하고 싶어요!\"}")
+				.with(csrf().asHeader()))
+			.andExpect(status().isOk());
+
+		actions.andDo(ApiDocumentation.builder()
+				.tag(TAG)
+				.description("모임 참여 신청 API")
+				.pathParameters(
+					parameter("meetupId", SimpleType.NUMBER, "모임 ID")
+				)
+				.requestFields(
+					field("message", STRING, "참여 신청 메시지").optional()
+				)
+				.responseFields(
+					field("meetupId", STRING, "참여 신청된 모임 ID")
+				)
+				.build())
 			.andDo(print());
 	}
 }
