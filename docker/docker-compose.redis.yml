@@ -1,0 +1,19 @@
+services:
+  redis:
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - backend
+
+volumes:
+  redis-data:
+
+networks:
+  backend:
+    driver: bridge
