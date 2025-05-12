@@ -27,28 +27,22 @@ public class RedisLockExecutor implements LockExecutor {
 		String fullKey = REDIS_LOCK_PREFIX + key;
 		RLock lock = redissonClient.getLock(fullKey);
 
-		boolean acquired = false;
-
 		try {
-			acquired = lock.tryLock(waitTime, leaseTime, timeUnit);
-			if (!acquired) {
-				log.warn("Redis 락 획득 실패: {}", fullKey);
-				throw new BusinessException(ErrorCode.ERR_DB, new String[]{fullKey});
-			}
-			// 락을 획득한 상태에서만 action 수행
+			lock.lock(leaseTime, timeUnit);
+			log.debug("Redis 락 획득 성공: {}", fullKey);
 			return action.get();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			log.error("Redis 락 대기 중 인터럽트 발생: {}", fullKey, e);
+		} catch (Exception e) {
+			log.error("Redis 락 처리 중 예외 발생: {}", fullKey, e);
 			throw new BusinessException(ErrorCode.ERR_DB, new String[]{fullKey});
 		} finally {
-			if (acquired) { // 락을 획득한 경우에만 해제
-				try {
+			try {
+				if (lock.isHeldByCurrentThread()) {
 					lock.unlock();
-				} catch (IllegalMonitorStateException e) {
-					log.error("Redis 락 해제 실패: {}", fullKey, e);
-					throw new BusinessException(ErrorCode.ERR_DB, new String[]{fullKey});
+					log.debug("Redis 락 해제 성공: {}", fullKey);
 				}
+			} catch (IllegalMonitorStateException e) {
+				log.error("Redis 락 해제 실패: {}", fullKey, e);
+				throw new BusinessException(ErrorCode.ERR_DB, new String[]{fullKey});
 			}
 		}
 	}
